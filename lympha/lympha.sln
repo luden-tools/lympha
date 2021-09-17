@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lympha", "..\compiler\compiler\Lympha.csproj", "{F46C0D4F-CFB3-4689-8E20-3C9FAD7C7122}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilerTests", "..\CompilerTests\CompilerTests.csproj", "{13763126-670F-40BA-AD46-492E86BE8C5D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F46C0D4F-CFB3-4689-8E20-3C9FAD7C7122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F46C0D4F-CFB3-4689-8E20-3C9FAD7C7122}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F46C0D4F-CFB3-4689-8E20-3C9FAD7C7122}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F46C0D4F-CFB3-4689-8E20-3C9FAD7C7122}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13763126-670F-40BA-AD46-492E86BE8C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13763126-670F-40BA-AD46-492E86BE8C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13763126-670F-40BA-AD46-492E86BE8C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13763126-670F-40BA-AD46-492E86BE8C5D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3EF17FD6-9531-4616-9495-3B1176B13493}
+	EndGlobalSection
+EndGlobal
