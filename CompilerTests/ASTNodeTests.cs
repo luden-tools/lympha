@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Lympha;
 
 namespace CompilerTests
@@ -21,10 +15,10 @@ namespace CompilerTests
                 .Tokenize("pedro :says hello")
                 .Parse();
 
-            Assert.IsTrue(ast.command == "says");
-            Assert.IsTrue(ast.arguments.Count == 2);
-            Assert.IsTrue(ast.arguments[0].command == "pedro");
-            Assert.IsTrue(ast.arguments[1].command == "hello");
+            Assert.IsTrue(ast.head == "says");
+            Assert.IsTrue(ast.body.Count == 2);
+            Assert.IsTrue(ast.body[0].head == "pedro");
+            Assert.IsTrue(ast.body[1].head == "hello");
         }
 
         [TestMethod]
@@ -32,14 +26,13 @@ namespace CompilerTests
         {
             Compiler compiler = new();
 
-            var ast = compiler
-                .Tokenize("pedro :(choose default-voice) hello")
-                .Parse();
+            var token = compiler.Tokenize("pedro :(choose default-voice portugal) hello");
+            var ast = token.Parse();
 
-            Assert.IsTrue(ast.command == "says");
-            Assert.IsTrue(ast.arguments.Count == 2);
-            Assert.IsTrue(ast.arguments[0].command == "pedro");
-            Assert.IsTrue(ast.arguments[1].command == "hello");
+            Assert.IsTrue(ast.body.Count == 2);
+            Assert.IsTrue(ast.pendingHead.body.Count == 3);
+            Assert.IsTrue(ast.body[0].head == "pedro");
+            Assert.IsTrue(ast.body[1].head == "hello");
         }
     }
 }

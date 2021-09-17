@@ -23,6 +23,7 @@ namespace Lympha
             string currentToken;
             char terminationChar;
             uint depth;
+            int charIndex;
 
             while (code.Length > 0)
             {
@@ -30,10 +31,19 @@ namespace Lympha
                 terminationChar = ' ';
                 depth = 0;
 
-                if (code[0] == '(')
+                charIndex = code[0] == ':' ? 1 : 0;
+
+                if (code[charIndex] == '(')
                 {
                     terminationChar = ')';
-                    code = code.Remove(0, 1); // skip the ( character
+                    code = code.Remove(0, 1 + charIndex); // skip the '(' or ':(' character(s)
+                }
+                else
+                {
+                    if (charIndex > 0)
+                    {
+                        code = code.Remove(0, 1); // skip the ':' character
+                    }
                 }
 
                 while (code[0] != terminationChar || depth > 0)
@@ -60,6 +70,8 @@ namespace Lympha
                     _ => throw new Exception("invalid termination character"),
                 };
 
+                token.isExplicit = charIndex == 1;
+
                 tokens.Add(token);
 
                 code = code.TrimStart();
@@ -68,59 +80,62 @@ namespace Lympha
             return new Token(tokens);
         }
 
-        public static ASTNode FromToken(Token root)
+        public static ASTNode Parse(Token root)
         {
             var firstBorn = root.children?.FirstOrDefault();
 
             if (firstBorn == null)
             {
-                return CommandOrResult(root.value, null);
+                return CreateNode(root, null);
             }
 
-            var explicitCommand = root.children
-                .FirstOrDefault(child => child.value?.StartsWith(':') ?? false);
+            var explicitHead = root.children
+                .FirstOrDefault(child => child.isExplicit);
 
-            if (explicitCommand == null)
+            if (explicitHead == null)
             {
-                return CommandOrResult(
-                    firstBorn.value,
+                return CreateNode(
+                    firstBorn,
                     root.children
                         .FindAll(child => child != firstBorn)
                 );
             }
             else
             {
-                return CommandOrResult(
-                    explicitCommand.value,
+                return CreateNode(
+                    explicitHead,
                     root.children
-                        .FindAll(child => child != explicitCommand)
+                        .FindAll(child => child != explicitHead)
                 );
             }
 
-            ASTNode CommandOrResult(string commandValue, List<Token> children)
+            ASTNode CreateNode(Token headToken, List<Token> bodyTokens)
             {
-                if (commandValue == null)
+                var body = bodyTokens?
+                    .Select(child => Parse(child))
+                    .ToList()
+                    ?? new List<ASTNode>();
+
+                if (headToken.value != null)
                 {
-                    if (children?.Count == 0)
+                    return new ASTNode(headToken.value, body);
+                }
+                else
+                {
+                    if (bodyTokens?.Count == 0)
                     {
                         throw new Exception("token has neither children nor a value");
                     }
 
-                    var pendingCommandChildren = children?
-                        .Select(child => FromToken(child))
+                    var pendingBody = headToken.children?
+                        .Select(child => Parse(child))
                         .ToList()
                         ?? new List<ASTNode>();
 
-                    return new ASTNode(pendingCommandChildren);
+                    var pendingHead = new ASTNode(pendingBody);
+
+                    return new ASTNode(pendingHead, body);
                 }
-
-                var command = commandValue.TrimStart(':');
-                var commandArguments = children?
-                    .Select(child => FromToken(child))
-                    .ToList()
-                    ?? new List<ASTNode>();
-
-                return new ASTNode(command, commandArguments);
             }
         }
 
@@ -134,7 +149,7 @@ namespace Lympha
     {
         public static ASTNode Parse(this Token token)
         {
-            return Compiler.FromToken(token);
+            return Compiler.Parse(token);
         }
     }
 }

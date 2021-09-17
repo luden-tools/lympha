@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Lympha
 {
@@ -10,6 +6,7 @@ namespace Lympha
     {
         public string value;
         public List<Token> children;
+        public bool isExplicit = false;
 
         public Token(string value)
         {

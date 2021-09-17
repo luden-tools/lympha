@@ -1,25 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Lympha
 {
     public class ASTNode
     {
-        public string command;
-        public ASTNode pendingCommand;
-        public List<ASTNode> arguments;
+        public string head;
+        public ASTNode pendingHead;
+        public List<ASTNode> body;
 
-        public ASTNode(List<ASTNode> arguments)
+        public ASTNode(List<ASTNode> body)
         {
-            command = null;
-            this.arguments = arguments;
+            head = null;
+            this.body = body;
         }
 
-        public ASTNode(string command, List<ASTNode> arguments = null)
+        public ASTNode(string head, List<ASTNode> body = null)
         {
-            this.command = command;
-            this.arguments = arguments;
+            this.head = head;
+            this.body = body;
+        }
+
+        public ASTNode(ASTNode head, List<ASTNode> body = null)
+        {
+            this.pendingHead = head;
+            this.body = body;
         }
     }
 }
