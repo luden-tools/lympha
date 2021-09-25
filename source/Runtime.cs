@@ -92,9 +92,10 @@ namespace Lympha
     {
         public SupportedType Type;
 
-        public Value(float value) : this(value as object)
+        public Value(float value)
         {
             Type = SupportedType.Number;
+            this.value = value;
         }
 
         public Value(string valueAsText, bool parse = false)
@@ -125,35 +126,11 @@ namespace Lympha
             value = (string)this.value;
         }
 
-        private Value(object value)
-        {
-            this.value = value;
-        }
-
         private void validateRequestedType(SupportedType requestedType)
         {
             if (Type != requestedType)
             {
-                string currentType;
-                switch (Type)
-                {
-                    case SupportedType.None:
-                        currentType = "None";
-                        break;
-                    case SupportedType.Number:
-                        currentType = "Number";
-                        break;
-                    case SupportedType.String:
-                        currentType = "String";
-                        break;
-                    case SupportedType.Object:
-                        currentType = "Object";
-                        break;
-                    default:
-                        currentType = "Unknown";
-                        break;
-                }
-                throw new Exception($"requested type doesn't match stored {currentType} type");
+                throw new Exception($"requested type doesn't match stored {Type} type");
             }
         }
 
