@@ -6,7 +6,7 @@ namespace Lympha
 {
     public class Compiler
     {
-        public string Compile(string source, CommandsContext context = null)
+        public Value Compile(string source, CommandsContext context = null)
         {
             var result = 
                 Tokenize(source)
@@ -159,6 +159,7 @@ namespace Lympha
                 context = new CommandsContext()
                 {
                     { "print", args => new Print(args) },
+                    { "sum", args => new Sum(args) }
                 };
             }
 

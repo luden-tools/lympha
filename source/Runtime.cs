@@ -12,7 +12,7 @@ namespace Lympha
                 .Select(node =>
                 {
                     if (node.body.Count > 0) return FromAST(node, context);
-                    else return new Argument(node.head);
+                    else return new Argument(new Value(node.head, parse: true));
                 })
                 .ToList();
 
@@ -88,30 +88,95 @@ namespace Lympha
         private Command dynamicCommand;
     }
 
+    public class Value
+    {
+        public SupportedType Type;
+
+        public Value(float value) : this(value as object)
+        {
+            Type = SupportedType.Number;
+        }
+
+        public Value(string valueAsText, bool parse = false)
+        {
+            if (parse && float.TryParse(valueAsText, out float valueAsFloat))
+            {
+                Type = SupportedType.Number;
+                value = valueAsFloat;
+                return;
+            }
+
+            Type = SupportedType.String;
+            value = valueAsText;
+        }
+
+        public void Get(out float value) {
+            validateRequestedType(SupportedType.Number);
+            value = (float)this.value;
+        }
+
+        public void Get(out string value) {
+            if (Type == SupportedType.Number)
+            {
+                value = $"{this.value}";
+                return;
+            }
+
+            value = (string)this.value;
+        }
+
+        private Value(object value)
+        {
+            this.value = value;
+        }
+
+        private void validateRequestedType(SupportedType requestedType)
+        {
+            if (Type != requestedType)
+            {
+                string currentType;
+                switch (Type)
+                {
+                    case SupportedType.None:
+                        currentType = "None";
+                        break;
+                    case SupportedType.Number:
+                        currentType = "Number";
+                        break;
+                    case SupportedType.String:
+                        currentType = "String";
+                        break;
+                    case SupportedType.Object:
+                        currentType = "Object";
+                        break;
+                    default:
+                        currentType = "Unknown";
+                        break;
+                }
+                throw new Exception($"requested type doesn't match stored {currentType} type");
+            }
+        }
+
+        public enum SupportedType
+        {
+            None,
+            Number,
+            String,
+            Object,
+        }
+
+        private object value;
+    }
+
     public class Argument : Node
     {
-        public string Value { get; private set; }
+        public Value Value { get; private set; }
 
-        public Argument(string value)
+        public Argument(Value value)
         {
             Type = NodeType.Argument;
             Value = value;
         }
-    }
-
-    public static class Commands
-    {
-        public static Command CreateCommand(string symbol, List<Node> arguments)
-        {
-            if (CommandsMap.ContainsKey(symbol)) return CommandsMap[symbol](arguments);
-            else return CommandsMap["<no-op>"](arguments);
-        }
-
-        public static CommandsContext CommandsMap = new CommandsContext()
-        {
-            { "print", args => new Print(args) },
-            { "<no-op>", args => new Print(args) },
-        };
     }
 
     public class CommandsContext : Dictionary<string, Func<List<Node>, Command>>
@@ -145,9 +210,49 @@ namespace Lympha
                     }
                 })
                 .Select(arg => arg.Value)
-                .Aggregate((left, right) => $"{left} {right}");
+                .Aggregate((left, right) => 
+                {
+                    left.Get(out string vleft);
+                    right.Get(out string vright);
+                    return new Value($"{vleft} {vright}", parse: false);
+                });
 
-            Console.WriteLine(output);
+            output.Get(out string outputText);
+
+            Console.WriteLine(outputText);
+
+            return new Argument(output);
+        }
+    }
+
+    public class Sum : Command
+    {
+        public Sum(List<Node> args) : base("sum", args) { }
+
+        protected override Node Run()
+        {
+            var output = args
+                .Select(arg =>
+                {
+                    switch (arg.Type)
+                    {
+                        case NodeType.Command:
+                            return (arg as Command).Run() as Argument;
+                        default:
+                            return arg as Argument;
+                    }
+                })
+                .Select(arg => arg.Value)
+                .Aggregate((left, right) =>
+                {
+                    left.Get(out float vleft);
+                    right.Get(out float vright);
+                    return new Value(vleft + vright);
+                });
+
+            output.Get(out string outputText);
+
+            Console.WriteLine(outputText);
 
             return new Argument(output);
         }
