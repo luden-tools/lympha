@@ -6,13 +6,15 @@ namespace Lympha
 {
     public class Compiler
     {
-        public Program Compile(string code)
+        public string Compile(string source, CommandsContext context = null)
         {
-            var program = new Program();
+            var result = 
+                Tokenize(source)
+                .Parse()
+                .ToRuntime(context)
+                .Run();
 
-            
-
-            return program;
+            return (result as Argument).Value;
         }
 
         public Token Tokenize(string code)
@@ -63,12 +65,10 @@ namespace Lympha
                 code = code.Remove(0, 1); // skip the termination character
 
             finished_token:
-                var token = terminationChar switch
-                {
-                    ' ' => new Token(currentToken),
-                    ')' => Tokenize(currentToken),
-                    _ => throw new Exception("invalid termination character"),
-                };
+                Token token;
+                if (terminationChar == ' ') token = new Token(currentToken);
+                else if (terminationChar == ')') token = Tokenize(currentToken);
+                else throw new Exception("invalid termination character");
 
                 token.isExplicit = charIndex == 1;
 
@@ -150,6 +150,28 @@ namespace Lympha
         public static ASTNode Parse(this Token token)
         {
             return Compiler.Parse(token);
+        }
+
+        public static Node ToRuntime(this ASTNode root, CommandsContext context = null)
+        {
+            if (context == null)
+            {
+                context = new CommandsContext()
+                {
+                    { "print", args => new Print(args) },
+                };
+            }
+
+            return Runtime.FromAST(root, context);
+        }
+
+        public static Node Run(this Node root)
+        {
+            if (root.Type != NodeType.Command) throw new Exception("root element is not a command");
+
+            var result = (root as Command).Execute();
+
+            return result;
         }
     }
 }

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3E293EAA-06EB-409A-A65C-FADEAC8EBFC3}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>lympha2</RootNamespace>
-    <AssemblyName>lympha2</AssemblyName>
+    <RootNamespace>Lympha</RootNamespace>
+    <AssemblyName>Lympha</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -39,7 +39,13 @@
     <Compile Include="source\ASTNode.cs" />
     <Compile Include="source\Compiler.cs" />
     <Compile Include="source\Program.cs" />
+    <Compile Include="source\Runtime.cs" />
     <Compile Include="source\Token.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

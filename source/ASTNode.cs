@@ -10,20 +10,26 @@ namespace Lympha
 
         public ASTNode(List<ASTNode> body)
         {
-            head = null;
             this.body = body;
+            
+            head = null;
+            pendingHead = null;
         }
 
         public ASTNode(string head, List<ASTNode> body = null)
         {
             this.head = head;
             this.body = body;
+            
+            pendingHead = null;
         }
 
         public ASTNode(ASTNode head, List<ASTNode> body = null)
         {
-            this.pendingHead = head;
+            pendingHead = head;
             this.body = body;
+
+            this.head = null;
         }
     }
 }

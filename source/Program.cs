@@ -8,7 +8,7 @@ namespace Lympha
 {
     public class Program
     {
-        public void Run()
+        public void Run(IDictionary<string, Func<bool>> environment = null)
         {
 
         }
