@@ -175,7 +175,7 @@ namespace Lympha
 
         protected override Node Run()
         {
-            var output = args
+            var outputText = args
                 .Select(arg =>
                 {
                     switch (arg.Type)
@@ -186,19 +186,17 @@ namespace Lympha
                             return arg as Argument;
                     }
                 })
-                .Select(arg => arg.Value)
-                .Aggregate((left, right) => 
+                .Select(arg =>
                 {
-                    left.Get(out string vleft);
-                    right.Get(out string vright);
-                    return new Value($"{vleft} {vright}", parse: false);
+                    arg.Value.Get(out string argAsText);
+                    return argAsText;
+                })
+                .Aggregate((left, right) =>
+                {
+                    return $"{left} {right}";
                 });
 
-            output.Get(out string outputText);
-
-            Console.WriteLine(outputText);
-
-            return new Argument(output);
+            return new Argument(new Value(outputText, parse: false));
         }
     }
 
