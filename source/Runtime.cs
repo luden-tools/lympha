@@ -12,7 +12,7 @@ namespace Lympha
                 .Select(node =>
                 {
                     if (node.body.Count > 0) return FromAST(node, context);
-                    else return new Argument(new Value(node.head, parse: true));
+                    else return new Argument(new Value(node.head, parse: true), node.name);
                 })
                 .ToList();
 
@@ -148,11 +148,13 @@ namespace Lympha
     public class Argument : Node
     {
         public Value Value { get; private set; }
+        public string Name { get; private set; }
 
-        public Argument(Value value)
+        public Argument(Value value, string name = null)
         {
             Type = NodeType.Argument;
             Value = value;
+            Name = name == "" ? null : name;
         }
     }
 
@@ -175,7 +177,7 @@ namespace Lympha
 
         protected override Node Run()
         {
-            var outputText = args
+            var processedArguments = args
                 .Select(arg =>
                 {
                     switch (arg.Type)
@@ -185,16 +187,48 @@ namespace Lympha
                         default:
                             return arg as Argument;
                     }
-                })
+                });
+
+            var options = processedArguments
+                .Where(arg => arg.Name != null);
+
+            string prefix = null;
+            string postfix = null;
+
+            foreach (var option in options)
+            {
+                switch (option.Name)
+                {
+                    case "prefix":
+                        option.Value.Get(out prefix);
+                        break;
+                    case "append":
+                        option.Value.Get(out postfix);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            var outputText = processedArguments
+                .Where(arg => arg.Name == null)
                 .Select(arg =>
                 {
                     arg.Value.Get(out string argAsText);
                     return argAsText;
                 })
-                .Aggregate((left, right) =>
+                .Aggregate<string, string>(null, (left, right) =>
                 {
+                    if (left == null) return right;
+
                     return $"{left} {right}";
                 });
+
+            if (prefix != null)
+                outputText = prefix + outputText;
+
+            if (postfix != null)
+                outputText += postfix;
 
             return new Argument(new Value(outputText, parse: false));
         }
@@ -218,7 +252,7 @@ namespace Lympha
                     }
                 })
                 .Select(arg => arg.Value)
-                .Aggregate((left, right) =>
+                .Aggregate(new Value(0f), (left, right) =>
                 {
                     left.Get(out float vleft);
                     right.Get(out float vright);

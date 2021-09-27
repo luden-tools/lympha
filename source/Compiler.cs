@@ -22,7 +22,7 @@ namespace Lympha
             code = code.Trim();
 
             var tokens = new List<Token>();
-            string currentToken;
+            string currentToken, tokenName;
             char terminationChar;
             uint depth;
             int charIndex;
@@ -30,6 +30,7 @@ namespace Lympha
             while (code.Length > 0)
             {
                 currentToken = "";
+                tokenName = "";
                 terminationChar = ' ';
                 depth = 0;
 
@@ -56,6 +57,18 @@ namespace Lympha
                     if (code[0] == ')')
                         --depth;
 
+                    if (code[0] == ':' && terminationChar == ' ' && peekNextChar(code, ' '))
+                    {
+                        if (tokenName != "") throw new Exception("invalid: two named tokens in a row");
+
+                        tokenName = currentToken;
+                        currentToken = "";
+
+                        code = code.Remove(0, 1); // skip the ':' character
+                        code = code.TrimStart(); // skip the ' ' terminal characters
+                        continue;
+                    }
+
                     currentToken += code[0];
                     code = code.Remove(0, 1); // advance to the next character
 
@@ -66,7 +79,7 @@ namespace Lympha
 
             finished_token:
                 Token token;
-                if (terminationChar == ' ') token = new Token(currentToken);
+                if (terminationChar == ' ') token = new Token(currentToken, tokenName);
                 else if (terminationChar == ')') token = Tokenize(currentToken);
                 else throw new Exception("invalid termination character");
 
@@ -118,7 +131,7 @@ namespace Lympha
 
                 if (headToken.value != null)
                 {
-                    return new ASTNode(headToken.value, body);
+                    return new ASTNode(headToken.value, headToken.name, body);
                 }
                 else
                 {
@@ -134,14 +147,19 @@ namespace Lympha
 
                     var pendingHead = new ASTNode(pendingBody);
 
-                    return new ASTNode(pendingHead, body);
+                    return new ASTNode(pendingHead, headToken.name, body);
                 }
             }
         }
 
+        private bool peekNextChar(string s, char expected)
+        {
+            return s.Length > 2 && s[1] == expected;
+        }
+            
         static void Main(string[] args)
         {
-            
+
         }
     }
 

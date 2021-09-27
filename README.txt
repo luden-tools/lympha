@@ -1,7 +1,5 @@
 == Future Plans
 
-named parameters
-
 AST transformation operators inside the language
 
 Build the universe with this language :)
